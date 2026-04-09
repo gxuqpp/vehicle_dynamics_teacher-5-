@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汽车动力性能计算 · 教师评阅工具</title>
+<style>
+:root{--bg:#0f1724;--surface:#1a2540;--card:#1e2d4a;--border:#2e4070;--accent:#4d9fff;--accent2:#ff6b4a;--green:#3ddc84;--yellow:#ffd166;--text:#e8eef8;--muted:#9ab0d0;--mono:'Courier New',monospace;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"微软雅黑","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:17px;}
+.hdr{background:linear-gradient(135deg,#0a1628,#1a3a7e);border-bottom:2px solid #2e4070;padding:16px 28px;display:flex;align-items:center;gap:20px;}
+.hdr h1{font-size:22px;color:#fff;font-weight:700;}
+.hdr p{font-size:15px;color:rgba(255,255,255,0.85);margin-top:4px;}
+.hdr-badge{margin-left:auto;background:#4d9fff;color:#fff;font-size:14px;font-family:var(--mono);padding:5px 14px;border-radius:12px;white-space:nowrap;}
+.tabs{display:flex;background:#111d30;border-bottom:2px solid var(--border);padding:0 20px;gap:2px;overflow-x:auto;}
+.tab{padding:12px 18px;font-size:15px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;transition:.15s;margin-bottom:-2px;}
+.tab:hover{color:var(--accent);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700;background:#1a2540;border-radius:4px 4px 0 0;}
+.layout{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 110px);}
+.sidebar{background:#141f33;border-right:1px solid var(--border);padding:14px;overflow-y:auto;}
+.main-area{overflow:hidden;}
+.ct{display:none;height:100%;overflow-y:auto;padding:18px;}
+.ct.active{display:block;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:12px;}
+.ph{padding:10px 14px;border-bottom:1px solid var(--border);font-size:14px;font-family:var(--mono);color:var(--accent);letter-spacing:.06em;display:flex;align-items:center;gap:8px;}
+.ph .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.pb{padding:14px;}
+.field{margin-bottom:9px;}
+.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:3px;font-family:var(--mono);}
+.field label em{color:var(--yellow);font-style:normal;}
+.field input,.field select{width:100%;padding:7px 9px;background:#0f1724;border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px;font-family:var(--mono);}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.btn{padding:10px 16px;border:none;border-radius:5px;font-size:15px;font-family:var(--mono);cursor:pointer;font-weight:700;transition:.15s;}
+.btn-p{background:var(--accent);color:#fff;width:100%;margin-top:8px;}
+.btn-p:hover{background:#3a8de8;}
+.btn-s{background:#1e2d4a;color:var(--text);font-size:13px;padding:7px 12px;width:100%;margin-top:6px;border:1px solid var(--border);}
+.sl{font-size:13px;font-family:var(--mono);color:var(--accent);letter-spacing:.08em;margin-bottom:6px;margin-top:6px;}
+.ref{background:#162035;border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 4px 4px 0;font-size:14px;color:#c0d4f0;margin:8px 0;font-family:var(--mono);line-height:1.8;}
+.cw{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:14px;}
+.ct-title{font-size:15px;color:var(--accent);font-family:var(--mono);margin-bottom:10px;font-weight:600;}
+canvas{display:block;width:100%;}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:14px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:12px;}
+.sc .sl2{font-size:13px;color:var(--muted);margin-bottom:4px;}
+.sc .sv{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--mono);}
+.sc.ok .sv{color:var(--green);}
+.sc.warn .sv{color:var(--yellow);}
+.ct-tbl{width:100%;border-collapse:collapse;font-size:15px;}
+.ct-tbl th{background:#1a2d50;padding:10px 12px;text-align:left;color:#c8dcff;border:1px solid var(--border);font-weight:700;}
+.ct-tbl td{padding:9px 12px;border:1px solid var(--border);color:var(--text);}
+.ct-tbl tr:hover td{background:#1f3260;}
+.rr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:15px;}
+.rr:last-child{border-bottom:none;}
+.rr .l{color:var(--muted);}
+.rr .v{font-family:var(--mono);font-weight:700;color:var(--green);}
+user-select: none
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div style="font-size:28px">🚛</div>
+  <div>
+    <h1>汽车动力性能计算 · 教师评阅工具</h1>
+    <p>汽车动力性能仿真 — 《汽车理论》第6版（余志生）</p>
+  </div>
+  <div class="hdr-badge">OFFLINE · 教师专用</div>
+</div>
+
+<div class="tabs" id="tabBar">
+  <div class="tab active" onclick="sw(0)">⚙️ 参数</div>
+  <div class="tab" onclick="sw(1)">① 驱动力平衡图</div>
+  <div class="tab" onclick="sw(2)">② 最高车速</div>
+  <div class="tab" onclick="sw(3)">③ 最大爬坡度</div>
+  <div class="tab" onclick="sw(4)">④ 各档爬坡度</div>
+  <div class="tab" onclick="sw(5)">⑤ 附着率</div>
+  <div class="tab" onclick="sw(6)">⑥ 加速度倒数曲线</div>
+  <div class="tab" onclick="sw(7)">⑦ v-t加速曲线</div>
+  <div class="tab" onclick="sw(8)">📋 评阅汇总</div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="panel">
+    <div class="ph"><span class="dot"></span>发动机 Tq-n 拟合</div>
+    <div class="pb">
+      <div class="field"><label>公式类型</label>
+        <select id="tq_mode" onchange="updTq()">
+          <option value="poly4" selected>4次多项式: Tq=A+B·x+C·x²+D·x³+E·x⁴ (x=n/1000)</option>
+          <option value="norm">标准式: Tq=Tqmax·(a·n̄+b·n̄²-c·n̄³)</option>
+          <option value="poly2">2次多项式: Tq=A+B·n+C·n²</option>
+        </select>
+      </div>
+      <div id="div_poly4">
+        <div class="ref" style="font-size:10px;padding:6px 10px;margin-bottom:6px">Ttq = A + B·x + C·x² + D·x³ + E·x⁴ &nbsp; (x = n/1000)</div>
+        <div class="g2">
+          <div class="field"><label><em>A</em> 常数项 (N·m)</label><input type="number" id="p4_A" value="-19.313" step="0.001"></div>
+          <div class="field"><label><em>B</em> 一次项</label><input type="number" id="p4_B" value="295.27" step="0.001"></div>
+          <div class="field"><label><em>C</em> 二次项</label><input type="number" id="p4_C" value="-165.44" step="0.001"></div>
+          <div class="field"><label><em>D</em> 三次项</label><input type="number" id="p4_D" value="40.874" step="0.001"></div>
+          <div class="field"><label><em>E</em> 四次项</label><input type="number" id="p4_E" value="-3.8445" step="0.0001"></div>
+        </div>
+      </div>
+      <div id="div_norm" style="display:none">
+        <div class="g2">
+          <div class="field"><label><em>Tq_max</em> N·m</label><input type="number" id="tq_max" value="170"></div>
+          <div class="field"><label><em>nT</em> r/min</label><input type="number" id="tq_nT" value="2000"></div>
+        </div>
+        <div class="g3">
+          <div class="field"><label><em>a</em></label><input type="number" id="tq_na" value="1" step="0.01"></div>
+          <div class="field"><label><em>b</em></label><input type="number" id="tq_nb" value="1" step="0.01"></div>
+          <div class="field"><label><em>c</em></label><input type="number" id="tq_nc" value="1" step="0.01"></div>
+        </div>
+      </div>
+      <div id="div_poly2" style="display:none">
+        <div class="g3">
+          <div class="field"><label><em>A</em> N·m</label><input type="number" id="tq_A" value="-26.07" step="0.01"></div>
+          <div class="field"><label><em>B</em> N·m·min</label><input type="number" id="tq_B" value="0.2017" step="0.0001"></div>
+          <div class="field"><label><em>C</em> N·m·min²</label><input type="number" id="tq_C" value="-0.0000274" step="0.0000001"></div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field"><label><em>n_min</em> r/min</label><input type="number" id="n_min" value="600"></div>
+        <div class="field"><label><em>n_max</em> r/min</label><input type="number" id="n_max" value="4000"></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="ph"><span class="dot"></span>整车参数</div>
+    <div class="pb">
+      <div class="g2">
+        <div class="field"><label><em>m_a</em> 总质量 kg</label><input type="number" id="ma" value="3880"></div>
+        <div class="field"><label><em>r</em> 轮胎半径 m</label><input type="number" id="r_w" value="0.367" step="0.001"></div>
+        <div class="field"><label><em>η_t</em> 传动效率</label><input type="number" id="eta_t" value="0.85" step="0.01"></div>
+        <div class="field"><label><em>i₀</em> 主减速比</label><input type="number" id="i0" value="5.83" step="0.01"></div>
+        <div class="field"><label><em>f</em> 滚动阻力系数</label><input type="number" id="f_roll" value="0.013" step="0.001"></div>
+        <div class="field"><label><em>C_D·A</em> m²</label><input type="number" id="CDA" value="2.77" step="0.01"></div>
+      </div>
+      <div class="sl">▸ 转动惯量</div>
+      <div class="g3">
+        <div class="field"><label><em>I_f</em> 飞轮</label><input type="number" id="If" value="0.218" step="0.001"></div>
+        <div class="field"><label><em>I_w1</em> 前×2</label><input type="number" id="Iw1" value="1.798" step="0.001"></div>
+        <div class="field"><label><em>I_w2</em> 后×4</label><input type="number" id="Iw2" value="3.598" step="0.001"></div>
+      </div>
+      <div class="sl">▸ 几何参数</div>
+      <div class="g3">
+        <div class="field"><label><em>L</em> 轴距 m</label><input type="number" id="L_wb" value="3.2" step="0.01"></div>
+        <div class="field"><label><em>a</em> 质心前距 m</label><input type="number" id="a_cg" value="1.974" step="0.001"></div>
+        <div class="field"><label><em>h_g</em> 质心高 m</label><input type="number" id="hg" value="0.9" step="0.01"></div>
+      </div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="ph"><span class="dot"></span>变速器</div>
+    <div class="pb">
+      <div class="field"><label>变速器类型</label>
+        <select id="gear_type" onchange="updGears()">
+          <option value="4">四档变速器</option>
+          <option value="5" selected>五档变速器</option>
+        </select>
+      </div>
+      <div id="gear_rows"></div>
+      <div class="sl">▸ 加速工况（任务⑥）</div>
+      <div class="g2">
+        <div class="field"><label>起步档</label>
+          <select id="accel_gear"><option value="2" selected>2档</option><option value="1">1档</option></select>
+        </div>
+        <div class="field"><label>目标车速 km/h</label><input type="number" id="accel_target" value="70"></div>
+      </div>
+    </div>
+  </div>
+  <button class="btn btn-p" onclick="calcAll()">▶ 全部计算并绘图</button>
+  <button class="btn btn-s" onclick="resetDef()">↺ 恢复默认值</button>
+</aside>
+
+<div class="main-area">
+  <!-- ct0: intro -->
+  
+<div class="ct active" id="ct0">
+    <div class="panel"><div class="ph"><span class="dot"></span>作业任务说明</div>
+    <div class="pb">
+      <div class="ref">实验内容：轻型货车整车性能仿真计算（4挡或5挡变速器）<br>
+①驱动力–行驶阻力平衡图 &nbsp;②最高车速 &nbsp;③最大爬坡度 &nbsp;④最大坡度时附着率 &nbsp;⑤加速度倒数曲线 &nbsp;⑥v-t曲线（2档起步→70km/h）</div>
+      <div class="sl" style="margin-top:12px">▸ 核心公式速查</div>
+      <div class="ref">
+<b>发动机转矩（4次多项式）:</b> Tq = A + B·(n/1000) + C·(n/1000)² + D·(n/1000)³ + E·(n/1000)⁴<br>
+<b>驱动力:</b> Ft = Tq·ig·i₀·ηt / r<br>
+<b>车速:</b> ua = 0.377·r·n / (ig·i₀) [km/h]<br>
+<b>行驶阻力:</b> F = f·ma·g + CDA·ua² / 21.15 [平路, N]<br>
+<b>旋转质量系数:</b> δ = 1 + (If·ig²·i₀² + Iw1 + Iw2) / (ma·r²)<br>
+<b>加速度:</b> j = (Ft – Fr) / (δ·ma) [m/s²]<br>
+<b>最大爬坡度:</b> sinα_max ≈ (Ft1_max – f·ma·g) / (ma·g)<br>
+<b>后轴附着率:</b> φ = Ft / N₂；N₂ = ma·g·[a/L·cosα + hg/L·(sinα – f·cosα)]
+      </div>
+      <div class="sl" style="margin-top:10px">▸ 检查要点</div>
+      <table class="ct-tbl">
+        <tr><th>#</th><th>检查项目</th><th>易错点</th></tr>
+        <tr><td>①</td><td>驱动力–阻力平衡图</td><td>各档曲线从n_min到n_max；阻力曲线是否包含空气阻力</td></tr>
+        <tr><td>②</td><td>最高车速</td><td>应是最高档Ft=Fr交点，不是发动机最高转速对应车速</td></tr>
+        <tr><td>③</td><td>最大爬坡度</td><td>用1档最大Ft；需减去滚动阻力；爬坡度%=tan(α)×100</td></tr>
+        <tr><td>④</td><td>附着率</td><td>后轴法向载荷要考虑坡道和惯性影响；检查是否&lt;路面φ</td></tr>
+        <tr><td>⑤</td><td>1/j曲线</td><td>δ计算中ig和i₀的平方；各档曲线对应速度范围正确</td></tr>
+        <tr><td>⑥</td><td>v-t曲线</td><td>梯形积分Δt=Δv/j；换挡判断（n_max时升档）；总时间</td></tr>
+      </table>
+    </div></div>
+  </div>
+<div class="ct" id="ct1">
+    <div class="cw"><div class="ct-title" id="t1">驱动力–行驶阻力平衡图</div><canvas id="c1" height="420"></canvas></div>
+    <div class="panel"><div class="ph"><span class="dot"></span>各档最大驱动力</div><div class="pb" id="ft_data">—</div></div>
+  </div>
+<div class="ct" id="ct2">
+    <div class="cw"><div class="ct-title">最高车速分析</div><canvas id="c2" height="380"></canvas></div>
+    <div class="sg" id="umax_cards"></div>
+  </div>
+<div class="ct" id="ct3">
+    <div class="cw"><div class="ct-title">最大爬坡度分析（1档）</div><canvas id="c3" height="380"></canvas></div>
+    <div class="sg" id="grade_cards"></div>
+    <div class="ref">1档最大驱动力 Ft1_max → 最大爬坡阻力 = Ft1_max<br>坡度 i% = tan(α_max)×100，坡角 α = arctan(i/100)</div>
+  </div>
+<div class="ct" id="ct4">
+    <div class="cw"><div class="ct-title">各档位最大爬坡度对比图</div><canvas id="c8" height="400"></canvas></div>
+    <div class="sg" id="grade_all_cards"></div>
+    <div class="ref">各档最大爬坡度 = tan(arcsin((Ft_max - f·W) / W)) × 100%　　Ft_max = max(Tq(n)) · ig · i₀ · ηt / r<br>高档爬坡能力受限于较小传动比，越野通过性主要看低档爬坡度。</div>
+  </div>
+<div class="ct" id="ct5">
+    <div class="cw"><div class="ct-title">后轴附着率分析</div><canvas id="c4" height="360"></canvas></div>
+    <div class="sg" id="adh_cards"></div>
+    <div class="ref">后驱车后轴法向载荷: N₂ = ma·g·[a/L·cosα + hg/L·(sinα – f·cosα)]<br>所需附着系数: φ_need = Ft_max / N₂ &nbsp;（应 &lt; 路面附着系数 φ_road）<br>参考：干沥青路面 φ≈0.7~0.8；湿路面 φ≈0.4~0.6</div>
+  </div>
+<div class="ct" id="ct6">
+    <div class="cw"><div class="ct-title">加速度倒数 1/j–ua 曲线（平路）</div><canvas id="c5" height="420"></canvas></div>
+    <div class="panel"><div class="ph"><span class="dot"></span>旋转质量系数 δ</div><div class="pb" id="delta_data">—</div></div>
+  </div>
+<div class="ct" id="ct7">
+    <div class="cw"><div class="ct-title" id="t6">v-t 加速曲线</div><canvas id="c6" height="420"></canvas></div>
+    <div class="sg" id="vt_cards"></div>
+  </div>
+<div class="ct" id="ct8">
+    <div class="panel"><div class="ph"><span class="dot"></span>📋 综合评阅参考表</div><div class="pb">
+      <div class="ref" style="margin-bottom:12px">以下计算值可作为教师评阅标准。学生误差建议允许 ±5%，图形形状重点检查。</div>
+      <table class="ct-tbl"><thead><tr><th>计算项目</th><th>本工具参考值</th><th>说明/公式核查点</th></tr></thead>
+      <tbody id="sum_body"></tbody></table>
+    </div></div>
+  </div>
+
+</div>
+</div>
+
+<script>
+const g=9.81;
+const C=['#e85d3b','#e8b83b','#29a96f','#3d7aed','#a855f7'];
+const GN=['Ⅰ档','Ⅱ档','Ⅲ档','Ⅳ档','Ⅴ档'];
+const IG4=[6.09,3.09,1.71,1.00];
+const IG5=[5.56,2.769,1.644,1.00,0.793];
+let RES={};
+
+function sw(i){
+  document.querySelectorAll('.ct').forEach((c,k)=>c.classList.toggle('active',k===i));
+  document.querySelectorAll('.tab').forEach((t,k)=>t.classList.toggle('active',k===i));
+}
+function updTq(){
+  const m=document.getElementById('tq_mode').value;
+  document.getElementById('div_poly4').style.display=m==='poly4'?'block':'none';
+  document.getElementById('div_norm').style.display=m==='norm'?'block':'none';
+  document.getElementById('div_poly2').style.display=m==='poly2'?'block':'none';
+}
+function updGears(){
+  const n=+document.getElementById('gear_type').value;
+  const ig=n===4?IG4:IG5;
+  let html='<div class="g3">';
+  ig.forEach((v,i)=>{html+=`<div class="field"><label>${GN[i]}</label><input type="number" id="ig${i}" value="${v}" step="0.001"></div>`;});
+  html+='</div>';
+  document.getElementById('gear_rows').innerHTML=html;
+  const sel=document.getElementById('accel_gear');
+  sel.innerHTML=Array.from({length:n},(_,i)=>`<option value="${i+1}"${i===1?' selected':''}>${i+1}档</option>`).join('');
+}
+function resetDef(){
+  document.getElementById('tq_mode').value='poly4'; updTq();
+  document.getElementById('p4_A').value=-19.313; document.getElementById('p4_B').value=295.27;
+  document.getElementById('p4_C').value=-165.44; document.getElementById('p4_D').value=40.874; document.getElementById('p4_E').value=-3.8445;
+  ['tq_max','tq_nT'].forEach((id,i)=>document.getElementById(id).value=[170,2000][i]);
+  ['tq_na','tq_nb','tq_nc'].forEach(id=>document.getElementById(id).value=1);
+  document.getElementById('n_min').value=600; document.getElementById('n_max').value=4000;
+  document.getElementById('ma').value=3880; document.getElementById('r_w').value=0.367;
+  document.getElementById('eta_t').value=0.85; document.getElementById('i0').value=5.83;
+  document.getElementById('f_roll').value=0.013; document.getElementById('CDA').value=2.77;
+  document.getElementById('If').value=0.218; document.getElementById('Iw1').value=1.798; document.getElementById('Iw2').value=3.598;
+  document.getElementById('L_wb').value=3.2; document.getElementById('a_cg').value=1.974; document.getElementById('hg').value=0.9;
+  document.getElementById('gear_type').value='5'; updGears();
+  document.getElementById('accel_gear').value='2'; document.getElementById('accel_target').value=70;
+}
+function P(){
+  const n=+document.getElementById('gear_type').value;
+  const ig=Array.from({length:n},(_,i)=>+document.getElementById('ig'+i).value);
+  const m=document.getElementById('tq_mode').value;
+  return{
+    mode:m, tq_max:+document.getElementById('tq_max').value, tq_nT:+document.getElementById('tq_nT').value,
+    tq_na:+document.getElementById('tq_na').value, tq_nb:+document.getElementById('tq_nb').value, tq_nc:+document.getElementById('tq_nc').value,
+    tq_A:+document.getElementById('tq_A').value, tq_B:+document.getElementById('tq_B').value, tq_C:+document.getElementById('tq_C').value,
+    p4_A:+document.getElementById('p4_A').value, p4_B:+document.getElementById('p4_B').value, p4_C:+document.getElementById('p4_C').value, p4_D:+document.getElementById('p4_D').value, p4_E:+document.getElementById('p4_E').value,
+    n_min:+document.getElementById('n_min').value, n_max:+document.getElementById('n_max').value,
+    ma:+document.getElementById('ma').value, r:+document.getElementById('r_w').value,
+    eta_t:+document.getElementById('eta_t').value, i0:+document.getElementById('i0').value,
+    f:+document.getElementById('f_roll').value, CDA:+document.getElementById('CDA').value,
+    If:+document.getElementById('If').value, Iw1:+document.getElementById('Iw1').value, Iw2:+document.getElementById('Iw2').value,
+    L:+document.getElementById('L_wb').value, a_cg:+document.getElementById('a_cg').value, hg:+document.getElementById('hg').value,
+    ig, ng:n, ag:+document.getElementById('accel_gear').value, at:+document.getElementById('accel_target').value
+  };
+}
+function Tq(n,p){
+  if(n<p.n_min||n>p.n_max)return 0;
+  if(p.mode==='poly4'){
+    const x=n/1000;
+    return p.p4_A + p.p4_B*x + p.p4_C*x*x + p.p4_D*x*x*x + p.p4_E*x*x*x*x;
+  }
+  if(p.mode==='poly2')return p.tq_A+p.tq_B*n+p.tq_C*n*n;
+  const nr=n/p.tq_nT;
+  return p.tq_max*(p.tq_na*nr+p.tq_nb*nr*nr-p.tq_nc*nr*nr*nr);
+}
+function ua2n(ua,ig,p){return ua*ig*p.i0/(0.377*p.r);}
+function n2ua(n,ig,p){return 0.377*p.r*n/(ig*p.i0);}
+function Ft(n,ig,p){return Tq(n,p)*ig*p.i0*p.eta_t/p.r;}
+function Fr(ua,p){return p.f*p.ma*g+p.CDA*ua*ua/21.15;}
+function delt(ig,p){return 1+(p.If*ig*ig*p.i0*p.i0+p.Iw1+p.Iw2)/(p.ma*p.r*p.r);}
+function acc(ua,ig,p){const n=ua2n(ua,ig,p);return(Ft(n,ig,p)-Fr(ua,p))/(delt(ig,p)*p.ma);}
+
+function calcAll(){
+  const p=P(); const NP=250;
+  const gd=p.ig.map((ig,gi)=>{
+    const u0=n2ua(p.n_min,ig,p),u1=n2ua(p.n_max,ig,p);
+    const uas=[],fts=[],frs=[],invjs=[];
+    for(let k=0;k<=NP;k++){
+      const ua=u0+k/NP*(u1-u0), n=ua2n(ua,ig,p);
+      const ft=Math.max(0,Ft(n,ig,p)), fr=Fr(ua,p);
+      const d=delt(ig,p), j=(ft-fr)/(d*p.ma);
+      uas.push(ua); fts.push(ft); frs.push(fr);
+      invjs.push(j>0.01?1/j:999);
+    }
+    return{ig,gi,u0,u1,uas,fts,frs,invjs,Ftmax:Math.max(...fts),delta:delt(ig,p)};
+  });
+  const uMax=gd[p.ng-1].u1*1.06;
+  const rus=[],rfs=[];
+  for(let k=0;k<=NP;k++){const ua=k/NP*uMax;rus.push(ua);rfs.push(Fr(ua,p));}
+
+  // Max speed (top gear intersection)
+  let uamax=0;
+  const lg=gd[p.ng-1];
+  for(let k=0;k<lg.uas.length-1;k++){
+    const d1=lg.fts[k]-lg.frs[k], d2=lg.fts[k+1]-lg.frs[k+1];
+    if(d1>=0&&d2<=0){uamax=lg.uas[k]+d1/(d1-d2)*(lg.uas[k+1]-lg.uas[k]);break;}
+  }
+  if(!uamax)uamax=lg.u1;
+
+  // Max grade per gear
+  const W=p.ma*g;
+  const gradePerGear=gd.map(g=>{
+    const Ft=g.Ftmax;
+    let sinA=Math.min(0.95,(Ft-p.f*W)/W);
+    if(sinA<0)sinA=0;
+    const aR=Math.asin(sinA);
+    return{sinA,aRad:aR,grade:Math.tan(aR)*100,Ft};
+  });
+  const Ft1=gd[0].Ftmax;
+  const sinA=gradePerGear[0].sinA, aRad=gradePerGear[0].aRad, grade=gradePerGear[0].grade;
+
+  // Adhesion
+  const cosA=Math.cos(aRad);
+  const N2=W*(p.a_cg/p.L*cosA+p.hg/p.L*(sinA-p.f*cosA));
+  const phi_need=Ft1/N2;
+
+  // v-t
+  const agi=p.ag-1;
+  let cgi=agi, ua_c=gd[agi].u0+0.2;
+  const vt_u=[ua_c],vt_t=[0];
+  const dv=(p.at-ua_c)/600;
+  let t_tot=0;
+  for(let k=0;k<600;k++){
+    if(cgi<p.ng-1&&ua2n(ua_c,p.ig[cgi],p)>=p.n_max*0.97)cgi++;
+    const ua_n=ua_c+dv;
+    if(ua_n>p.at)break;
+    const j=acc((ua_c+ua_n)/2,p.ig[cgi],p);
+    if(j<=0.001)break;
+    t_tot+=dv/3.6/j;
+    vt_u.push(ua_n); vt_t.push(t_tot);
+    ua_c=ua_n;
+  }
+
+  RES={p,gd,rus,rfs,uMax,uamax,grade,aRad,phi_need,N2,Ft1,vt_u,vt_t,gradePerGear};
+  draw1();draw2();draw3();draw4();draw5();draw6();draw8();buildSum();
+}
+
+// ── Chart helpers
+function setupC(id,h){
+  const cv=document.getElementById(id);
+  const dpr=window.devicePixelRatio||1,W=cv.offsetWidth||680;
+  cv.width=W*dpr;cv.height=h*dpr;
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,h);
+  return{ctx,W,H:h};
+}
+function frame(ctx,W,H,pd,x0,x1,y0,y1,xL,yL,title){
+  const cw=W-pd.l-pd.r,ch=H-pd.t-pd.b;
+  const tx=v=>pd.l+(v-x0)/(x1-x0)*cw;
+  const ty=v=>pd.t+ch-(v-y0)/(y1-y0)*ch;
+  ctx.fillStyle='#131e30';ctx.fillRect(pd.l,pd.t,cw,ch);
+  ctx.strokeStyle='#2a3d5c';ctx.lineWidth=0.8;
+  for(let i=0;i<=6;i++){const gx=pd.l+i/6*cw;ctx.beginPath();ctx.moveTo(gx,pd.t);ctx.lineTo(gx,pd.t+ch);ctx.stroke();}
+  for(let i=0;i<=5;i++){const gy=pd.t+i/5*ch;ctx.beginPath();ctx.moveTo(pd.l,gy);ctx.lineTo(pd.l+cw,gy);ctx.stroke();}
+  ctx.strokeStyle='#3a5080';ctx.lineWidth=1;ctx.strokeRect(pd.l,pd.t,cw,ch);
+  ctx.fillStyle='#9ab0d0';ctx.font='13px Courier New';ctx.textAlign='center';
+  for(let i=0;i<=6;i++)ctx.fillText(((x0+i/6*(x1-x0)).toFixed(0)),pd.l+i/6*cw,pd.t+ch+16);
+  ctx.textAlign='right';
+  for(let i=0;i<=5;i++){const v=y0+i/5*(y1-y0);ctx.fillText(Math.round(v),pd.l-5,pd.t+ch-i/5*ch+4);}
+  ctx.save();ctx.translate(14,pd.t+ch/2);ctx.rotate(-Math.PI/2);ctx.textAlign='center';ctx.font='14px 微软雅黑';ctx.fillStyle='#9ab0d0';ctx.fillText(yL,0,0);ctx.restore();
+  ctx.textAlign='center';ctx.font='14px 微软雅黑';ctx.fillStyle='#9ab0d0';ctx.fillText(xL,pd.l+cw/2,pd.t+ch+36);
+  ctx.font='bold 15px 微软雅黑';ctx.fillStyle='#e8eef8';ctx.fillText(title,pd.l+cw/2,pd.t-12);
+  return{tx,ty,cw,ch};
+}
+function line(ctx,xs,ys,tx,ty,col,lw=2.2){
+  ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.setLineDash([]);ctx.beginPath();
+  xs.forEach((x,i)=>{const px=tx(x),py=ty(ys[i]);i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);});
+  ctx.stroke();
+}
+function dot(ctx,px,py,col,r=6){
+  ctx.fillStyle=col;ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ffffff';ctx.lineWidth=2;ctx.beginPath();ctx.arc(px,py,r,0,Math.PI*2);ctx.stroke();
+}
+function leg(ctx,lx,ly,col,label){
+  ctx.fillStyle=col;ctx.fillRect(lx,ly-2,22,3);
+  ctx.fillStyle='#3a4460';ctx.font='13px 微软雅黑';ctx.textAlign='left';ctx.fillText(label,lx+26,ly+2);
+}
+
+function draw1(){
+  const {p,gd,rus,rfs,uMax}=RES;
+  const {ctx,W,H}=setupC('c1',440);
+  const pd={l:72,r:18,t:36,b:52};
+  const yMax=Math.max(...gd.map(g=>g.Ftmax))*1.1;
+  const {tx,ty,cw}=frame(ctx,W,H,pd,0,uMax,0,yMax,'车速 ua (km/h)','力 (N)','驱动力–行驶阻力平衡图');
+  line(ctx,rus,rfs,tx,ty,'#334466',2.2);
+  gd.forEach((g,gi)=>line(ctx,g.uas,g.fts,tx,ty,C[gi],2.2));
+  // Legend
+  const lx=pd.l+10,ly=pd.t+16;
+  leg(ctx,lx,ly,'#334466','行驶阻力 Fr');
+  gd.forEach((g,gi)=>leg(ctx,lx,ly+(gi+1)*16,C[gi],`${GN[gi]}驱动力 Ft`));
+  // Ft data
+  let html='<div class="g2">';
+  gd.forEach((g,gi)=>{html+=`<div class="rr"><span class="l" style="color:${C[gi]}">${GN[gi]} Ft_max</span><span class="v">${Math.round(g.Ftmax)} N</span></div>`;});
+  html+='</div>';document.getElementById('ft_data').innerHTML=html;
+}
+
+function draw2(){
+  const {p,gd,rus,rfs,uamax,uMax}=RES;
+  const lg=gd[p.ng-1];
+  const {ctx,W,H}=setupC('c2',380);
+  const pd={l:72,r:18,t:36,b:52};
+  const yMax=Math.max(...lg.fts,...lg.frs)*1.12;
+  const {tx,ty}=frame(ctx,W,H,pd,0,lg.u1*1.06,0,yMax,'车速 ua (km/h)','力 (N)',`最高车速分析（${GN[p.ng-1]}）`);
+  const rus2=rus.filter(u=>u<=lg.u1*1.06), rfs2=rus2.map(u=>Fr(u,p));
+  line(ctx,rus2,rfs2,tx,ty,'#334466',2.2);
+  line(ctx,lg.uas,lg.fts,tx,ty,C[p.ng-1],2.4);
+  if(uamax>0){
+    const px=tx(uamax),py=ty(Fr(uamax,p));
+    dot(ctx,px,py,'#e85d3b',7);
+    ctx.fillStyle='#ff6b4a';ctx.font='bold 14px 微软雅黑';ctx.textAlign='left';
+    ctx.fillText(`ua_max = ${uamax.toFixed(1)} km/h`,px+10,py-8);
+  }
+  document.getElementById('umax_cards').innerHTML=[
+    {l:'最高车速',v:`${uamax.toFixed(1)} km/h`,ok:1},
+    {l:'最高档传动比',v:p.ig[p.ng-1].toFixed(3),ok:1},
+    {l:'此时转速',v:`${ua2n(uamax,p.ig[p.ng-1],p).toFixed(0)} r/min`,ok:1},
+    {l:'最高档u_max(n_max)',v:`${lg.u1.toFixed(1)} km/h`,ok:1},
+  ].map(c=>`<div class="sc ${c.ok?'ok':'warn'}"><div class="sl2">${c.l}</div><div class="sv">${c.v}</div></div>`).join('');
+  function Fr(ua,p){return p.f*p.ma*g+p.CDA*ua*ua/21.15;}
+}
+
+function draw3(){
+  const {p,gd,grade,aRad,Ft1}=RES;
+  const W=p.ma*g;
+  const {ctx,H:H}=setupC('c3',380);
+  const {W:cW}=setupC('c3',380);
+  const {ctx:ctx2,W:W2,H:H2}=setupC('c3',380);
+  const pd={l:72,r:18,t:36,b:52};
+  const gs=[],fc=[];
+  for(let i=0;i<=80;i++){const pct=i,a=Math.atan(pct/100);gs.push(pct);fc.push(W*(Math.sin(a)+p.f*Math.cos(a)));}
+  const yMax=Ft1*1.12;
+  const {tx,ty}=frame(ctx2,W2,H2,pd,0,80,0,yMax,'坡度 i (%)','力 (N)','最大爬坡度分析（1档）');
+  line(ctx2,gs,fc,tx,ty,'#334466',2.2);
+  line(ctx2,[0,80],[Ft1,Ft1],tx,ty,C[0],2.4);
+  ctx2.strokeStyle='#e85d3b';ctx2.lineWidth=1;ctx2.setLineDash([5,3]);
+  ctx2.beginPath();ctx2.moveTo(tx(grade),pd.t);ctx2.lineTo(tx(grade),pd.t+H2-pd.t-pd.b);ctx2.stroke();ctx2.setLineDash([]);
+  dot(ctx2,tx(grade),ty(W*(Math.sin(aRad)+p.f*Math.cos(aRad))),'#e85d3b',7);
+  ctx2.fillStyle='#ff6b4a';ctx2.font='bold 14px 微软雅黑';ctx2.textAlign='left';
+  ctx2.fillText(`i_max≈${grade.toFixed(1)}%`,tx(grade)+8,ty(Ft1)-10);
+  document.getElementById('grade_cards').innerHTML=[
+    {l:'最大爬坡度 i%',v:`${grade.toFixed(2)}%`,ok:1},
+    {l:'最大坡度角 α',v:`${(aRad*180/Math.PI).toFixed(2)}°`,ok:1},
+    {l:'1档最大Ft',v:`${Math.round(Ft1)} N`,ok:1},
+    {l:'sinα_max',v:Math.sin(aRad).toFixed(4),ok:1},
+  ].map(c=>`<div class="sc ${c.ok?'ok':'warn'}"><div class="sl2">${c.l}</div><div class="sv">${c.v}</div></div>`).join('');
+}
+
+function draw4(){
+  const {p,phi_need,N2,aRad,Ft1}=RES;
+  const W=p.ma*g;
+  const {ctx,W:cW,H:cH}=setupC('c4',360);
+  const pd={l:72,r:18,t:36,b:52};
+  const gs=[],phis=[];
+  for(let i=0;i<=50;i++){
+    const pct=i,a=Math.atan(pct/100),sA=Math.sin(a),cA=Math.cos(a);
+    gs.push(pct);
+    const N2i=W*(p.a_cg/p.L*cA+p.hg/p.L*(sA-p.f*cA));
+    phis.push(N2i>0?Ft1/N2i:0);
+  }
+  const {tx,ty,cw,ch}=frame(ctx,cW,cH,pd,0,50,0,1.8,'坡度 i (%)','所需附着系数 φ','后轴所需附着系数（1档最大Ft）');
+  line(ctx,gs,phis,tx,ty,C[0],2.4);
+  // Reference lines
+  [[0.8,'#29a96f','干路φ=0.8'],[0.5,'#e8b83b','湿路φ=0.5']].forEach(([v,col,lbl])=>{
+    line(ctx,[0,50],[v,v],tx,ty,col,1.5);
+    ctx.fillStyle=col;ctx.font='10px 微软雅黑';ctx.textAlign='right';
+    ctx.fillText(lbl,pd.l+cw-4,ty(v)-5);
+  });
+  const grade=Math.tan(aRad)*100;
+  dot(ctx,tx(grade),ty(phi_need),'#e85d3b',7);
+  ctx.fillStyle='#ff6b4a';ctx.font='bold 14px 微软雅黑';ctx.textAlign='left';
+  ctx.fillText(`φ需=${phi_need.toFixed(3)}`,tx(grade)+8,ty(phi_need)-8);
+  const ok=phi_need<0.8;
+  document.getElementById('adh_cards').innerHTML=[
+    {l:'最大坡度时所需附着率',v:`φ=${phi_need.toFixed(3)}`,ok},
+    {l:'后轴法向载荷',v:`${Math.round(N2)} N`,ok:1},
+    {l:'能否实现（干路φ<0.8）',v:ok?'✓ 满足':'⚠ 需要更好路面',ok},
+    {l:'对应坡度',v:`${grade.toFixed(2)}%`,ok:1},
+  ].map(c=>`<div class="sc ${c.ok?'ok':'warn'}"><div class="sl2">${c.l}</div><div class="sv">${c.v}</div></div>`).join('');
+}
+
+function draw5(){
+  const {p,gd,uMax}=RES;
+  const {ctx,W:cW,H:cH}=setupC('c5',440);
+  const pd={l:72,r:18,t:36,b:52};
+  const allij=gd.flatMap(g=>g.invjs.filter(v=>v<60));
+  const yMax=Math.min(60,Math.max(...allij)*1.1);
+  const {tx,ty}=frame(ctx,cW,cH,pd,0,uMax,0,yMax,'车速 ua (km/h)','加速度倒数 1/j (s²/m)','加速度倒数曲线（各档，平路）');
+  gd.forEach((g,gi)=>{
+    const xs=[],ys=[];
+    g.uas.forEach((u,k)=>{if(g.invjs[k]<yMax){xs.push(u);ys.push(g.invjs[k]);}});
+    if(xs.length>0){
+      line(ctx,xs,ys,tx,ty,C[gi],2.2);
+      const m=Math.floor(xs.length/2);
+      if(xs[m]){ctx.fillStyle=C[gi];ctx.font='bold 13px 微软雅黑';ctx.textAlign='center';ctx.fillText(GN[gi],tx(xs[m]),ty(ys[m])-12);}
+    }
+  });
+  let html='<div class="g3">';
+  gd.forEach((g,gi)=>{html+=`<div class="rr"><span class="l" style="color:${C[gi]}">${GN[gi]} δ</span><span class="v">${g.delta.toFixed(3)}</span></div>`;});
+  html+='</div>';document.getElementById('delta_data').innerHTML=html;
+}
+
+function draw6(){
+  const {p,vt_u,vt_t}=RES;
+  const {ctx,W:cW,H:cH}=setupC('c6',420);
+  const pd={l:72,r:18,t:36,b:52};
+  const tMax=Math.max(...vt_t)*1.08;
+  const {tx,ty}=frame(ctx,cW,cH,pd,0,tMax,0,p.at*1.08,'时间 t (s)','车速 ua (km/h)',`${p.ag}档起步加速 v-t 曲线（至${p.at}km/h）`);
+  line(ctx,vt_t,vt_u,tx,ty,'#29a96f',2.5);
+  const ttot=vt_t[vt_t.length-1],utop=vt_u[vt_u.length-1];
+  dot(ctx,tx(ttot),ty(utop),'#3d7aed',7);
+  ctx.fillStyle='#4d9fff';ctx.font='bold 14px 微软雅黑';ctx.textAlign='right';
+  ctx.fillText(`t=${ttot.toFixed(1)}s`,tx(ttot)-10,ty(utop)-8);
+  document.getElementById('t6').textContent=`${p.ag}档起步加速 v-t 曲线（至${p.at}km/h）`;
+  document.getElementById('vt_cards').innerHTML=[
+    {l:`加速至${p.at}km/h耗时`,v:`${ttot.toFixed(2)} s`,ok:1},
+    {l:'起步档位',v:`${p.ag}档 (ig=${p.ig[p.ag-1]})`,ok:1},
+    {l:'积分点数',v:`${vt_t.length}`,ok:1},
+    {l:'平均加速度',v:`${(p.at/3.6/ttot).toFixed(3)} m/s²`,ok:1},
+  ].map(c=>`<div class="sc ${c.ok?'ok':'warn'}"><div class="sl2">${c.l}</div><div class="sv">${c.v}</div></div>`).join('');
+}
+
+function draw8(){
+  const {p,gd,gradePerGear}=RES;
+  const {ctx,W:cW,H:cH}=setupC('c8',400);
+  const pd={l:72,r:28,t:46,b:60};
+  const cw=cW-pd.l-pd.r, ch=cH-pd.t-pd.b;
+  const grades=gradePerGear.map(g=>g.grade);
+  const yMax=Math.max(...grades)*1.18;
+  // Bar chart
+  ctx.fillStyle='#131e30'; ctx.fillRect(pd.l,pd.t,cw,ch);
+  ctx.strokeStyle='#2a3d5c'; ctx.lineWidth=0.8;
+  for(let i=0;i<=5;i++){
+    const gy=pd.t+i/5*ch;
+    ctx.beginPath();ctx.moveTo(pd.l,gy);ctx.lineTo(pd.l+cw,gy);ctx.stroke();
+  }
+  ctx.strokeStyle='#3a5080';ctx.lineWidth=1;ctx.strokeRect(pd.l,pd.t,cw,ch);
+  const n=gd.length;
+  const bw=cw/(n*1.6), gap=(cw-n*bw)/(n+1);
+  const toY=v=>pd.t+ch*(1-v/yMax);
+  // Y axis labels
+  ctx.fillStyle='#9ab0d0';ctx.font='13px Courier New';ctx.textAlign='right';
+  for(let i=0;i<=5;i++){
+    const v=i/5*yMax;
+    const gy=pd.t+ch*(1-i/5);
+    ctx.fillText(v.toFixed(1)+'%',pd.l-5,gy+4);
+  }
+  // Bars
+  gradePerGear.forEach((g,gi)=>{
+    const bx=pd.l+gap+gi*(bw+gap);
+    const barH=ch*g.grade/yMax;
+    const by=pd.t+ch-barH;
+    // Bar fill with gradient feel
+    const col=C[gi];
+    ctx.fillStyle=col;
+    ctx.beginPath();
+    ctx.roundRect?ctx.roundRect(bx,by,bw,barH,4):ctx.rect(bx,by,bw,barH);
+    ctx.fill();
+    // Value label on top
+    ctx.fillStyle='#e8eef8';ctx.font='bold 13px Courier New';ctx.textAlign='center';
+    ctx.fillText(g.grade.toFixed(1)+'%',bx+bw/2,by-7);
+    // Gear label below x-axis
+    ctx.fillStyle=col;ctx.font='bold 13px 微软雅黑';
+    ctx.fillText(GN[gi],bx+bw/2,pd.t+ch+20);
+    ctx.fillStyle='#9ab0d0';ctx.font='12px Courier New';
+    ctx.fillText('ig='+p.ig[gi],bx+bw/2,pd.t+ch+35);
+    ctx.fillText(Math.round(g.Ft)+'N',bx+bw/2,pd.t+ch+48);
+  });
+  // Y axis label
+  ctx.save();ctx.translate(16,pd.t+ch/2);ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center';ctx.font='14px 微软雅黑';ctx.fillStyle='#9ab0d0';
+  ctx.fillText('最大爬坡度 i (%)',0,0);ctx.restore();
+  // Title
+  ctx.textAlign='center';ctx.font='bold 15px 微软雅黑';ctx.fillStyle='#e8eef8';
+  ctx.fillText('各档最大爬坡度对比',pd.l+cw/2,pd.t-20);
+  ctx.font='13px 微软雅黑';ctx.fillStyle='#9ab0d0';
+  ctx.fillText('（平路最大驱动力 vs 坡道爬行阻力，已扣除滚动阻力）',pd.l+cw/2,pd.t-6);
+  // Cards
+  document.getElementById('grade_all_cards').innerHTML=gradePerGear.map((g,gi)=>
+    `<div class="sc ok"><div class="sl2" style="color:${C[gi]}">${GN[gi]}（ig=${p.ig[gi]}）</div>`+
+    `<div class="sv" style="color:${C[gi]}">${g.grade.toFixed(2)}%</div>`+
+    `<div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${(g.aRad*180/Math.PI).toFixed(1)}° · Ft=${Math.round(g.Ft)}N</div></div>`
+  ).join('');
+}
+
+function buildSum(){
+  const {p,gd,uamax,grade,phi_need,vt_t,Ft1,aRad,gradePerGear}=RES;
+  const ttot=vt_t[vt_t.length-1];
+  const rows=[
+    ['最高车速 ua_max',`${uamax.toFixed(1)} km/h`,`最高档Ft=Fr交点；检查图形正确性`],
+    ['最大爬坡度 i_max',`${grade.toFixed(2)}%`,`1档最大Ft；坡度 = tan(α_max)×100；注意与坡道角区别`],
+    ['最大坡度时附着率 φ',`${phi_need.toFixed(3)}`,`后轴法向载荷公式；应 < 0.7~0.8（干路）`],
+    [`${p.ag}档加速至${p.at}km/h耗时`,`${ttot.toFixed(2)} s`,`梯形积分 ∫1/j·dv；换挡时n≥n_max`],
+    ['1档最大驱动力 Ft1_max',`${Math.round(Ft1)} N`,`= Tqmax·${p.ig[0]}·${p.i0}·${p.eta_t}/${p.r}`],
+    ['1档旋转质量系数 δ₁',`${gd[0].delta.toFixed(3)}`,`= 1+(If·${p.ig[0]}²·${p.i0}²+Iw1+Iw2)/(ma·r²)`],
+    ['最高档δ',`${gd[p.ng-1].delta.toFixed(3)}`,`对应最高车速加速性计算`],
+    ['最高车速时转速',`${ua2n(uamax,p.ig[p.ng-1],p).toFixed(0)} r/min`,`检查是否在[n_min, n_max]范围内`],
+  ];
+  // append per-gear grade rows
+  gradePerGear.forEach((g,gi)=>{
+    rows.push([`${GN[gi]}（ig=${p.ig[gi]}）最大爬坡度`, `${g.grade.toFixed(2)}%`, `Ft=${Math.round(g.Ft)}N，α=${(g.aRad*180/Math.PI).toFixed(1)}°`]);
+  });
+  document.getElementById('sum_body').innerHTML=rows.map(([item,val,note])=>`<tr>
+    <td>${item}</td>
+    <td style="color:#1a7a48;font-weight:700;font-family:var(--mono)">${val}</td>
+    <td style="color:#5a6580;font-size:11px">${note}</td>
+  </tr>`).join('');
+}
+
+updGears(); updTq();
+setTimeout(calcAll,100);
+window.addEventListener('resize',()=>{if(RES.gd){draw1();draw2();draw3();draw4();draw5();draw6();draw8();}});
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+if (e.key === 'F12' || 
+(e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+(e.ctrlKey && e.key === 'U') ||
+(e.ctrlKey && e.key === 'S')) {
+e.preventDefault();
+return false;
+}
+});
+
+</script>
+<script>
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', e => {
+    if (e.key === 'F12' || 
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        (e.ctrlKey && e.key === 'U') ||
+        (e.ctrlKey && e.key === 'S')) {
+      e.preventDefault();
+      return false;
+    }
+  });
+</script>
+
+</body>
+</html>
