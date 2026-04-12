@@ -7,61 +7,99 @@
 <style>
 :root{--bg:#0f1724;--surface:#1a2540;--card:#1e2d4a;--border:#2e4070;--accent:#4d9fff;--accent2:#ff6b4a;--green:#3ddc84;--yellow:#ffd166;--text:#e8eef8;--muted:#9ab0d0;--mono:'Courier New',monospace;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:"微软雅黑","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:17px;}
-.hdr{background:linear-gradient(135deg,#0a1628,#1a3a7e);border-bottom:2px solid #2e4070;padding:16px 28px;display:flex;align-items:center;gap:20px;}
-.hdr h1{font-size:22px;color:#fff;font-weight:700;}
-.hdr p{font-size:15px;color:rgba(255,255,255,0.85);margin-top:4px;}
-.hdr-badge{margin-left:auto;background:#4d9fff;color:#fff;font-size:14px;font-family:var(--mono);padding:5px 14px;border-radius:12px;white-space:nowrap;}
-.tabs{display:flex;background:#111d30;border-bottom:2px solid var(--border);padding:0 20px;gap:2px;overflow-x:auto;}
-.tab{padding:12px 18px;font-size:15px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;transition:.15s;margin-bottom:-2px;}
+body{font-family:"微软雅黑","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:16px;}
+.hdr{background:linear-gradient(135deg,#0a1628,#1a3a7e);border-bottom:2px solid #2e4070;padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.hdr-icon{font-size:26px;flex-shrink:0;}
+.hdr-text{flex:1;min-width:0;}
+.hdr h1{font-size:18px;color:#fff;font-weight:700;}
+.hdr p{font-size:13px;color:rgba(255,255,255,0.8);margin-top:3px;}
+.hdr-badge{background:#4d9fff;color:#fff;font-size:12px;font-family:var(--mono);padding:4px 10px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+.sidebar-toggle{display:none;width:100%;padding:11px 16px;background:#1a2d4a;border:none;border-bottom:2px solid var(--border);color:var(--accent);font-size:14px;font-family:var(--mono);cursor:pointer;text-align:left;font-weight:700;letter-spacing:.04em;}
+.sidebar-toggle::after{content:" ▼";font-size:11px;}
+.sidebar-toggle.open::after{content:" ▲";}
+.tabs{display:flex;background:#111d30;border-bottom:2px solid var(--border);padding:0 8px;gap:2px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:10px 14px;font-size:14px;cursor:pointer;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;transition:.15s;margin-bottom:-2px;flex-shrink:0;}
 .tab:hover{color:var(--accent);}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:700;background:#1a2540;border-radius:4px 4px 0 0;}
-.layout{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 110px);}
-.sidebar{background:#141f33;border-right:1px solid var(--border);padding:14px;overflow-y:auto;}
+.layout{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 106px);}
+.sidebar{background:#141f33;border-right:1px solid var(--border);padding:12px;overflow-y:auto;}
 .main-area{overflow:hidden;}
-.ct{display:none;height:100%;overflow-y:auto;padding:18px;}
+.ct{display:none;height:100%;overflow-y:auto;padding:14px;}
 .ct.active{display:block;}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:12px;}
-.ph{padding:10px 14px;border-bottom:1px solid var(--border);font-size:14px;font-family:var(--mono);color:var(--accent);letter-spacing:.06em;display:flex;align-items:center;gap:8px;}
-.ph .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
-.pb{padding:14px;}
-.field{margin-bottom:9px;}
-.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:3px;font-family:var(--mono);}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:6px;margin-bottom:10px;}
+.ph{padding:9px 12px;border-bottom:1px solid var(--border);font-size:13px;font-family:var(--mono);color:var(--accent);letter-spacing:.06em;display:flex;align-items:center;gap:8px;}
+.ph .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.pb{padding:12px;}
+.field{margin-bottom:8px;}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px;font-family:var(--mono);}
 .field label em{color:var(--yellow);font-style:normal;}
-.field input,.field select{width:100%;padding:7px 9px;background:#0f1724;border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px;font-family:var(--mono);}
+.field input,.field select{width:100%;padding:8px 9px;background:#0f1724;border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:14px;font-family:var(--mono);-webkit-appearance:none;}
 .field input:focus,.field select:focus{outline:none;border-color:var(--accent);}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
 .btn{padding:10px 16px;border:none;border-radius:5px;font-size:15px;font-family:var(--mono);cursor:pointer;font-weight:700;transition:.15s;}
 .btn-p{background:var(--accent);color:#fff;width:100%;margin-top:8px;}
-.btn-p:hover{background:#3a8de8;}
-.btn-s{background:#1e2d4a;color:var(--text);font-size:13px;padding:7px 12px;width:100%;margin-top:6px;border:1px solid var(--border);}
-.sl{font-size:13px;font-family:var(--mono);color:var(--accent);letter-spacing:.08em;margin-bottom:6px;margin-top:6px;}
-.ref{background:#162035;border-left:4px solid var(--accent);padding:10px 14px;border-radius:0 4px 4px 0;font-size:14px;color:#c0d4f0;margin:8px 0;font-family:var(--mono);line-height:1.8;}
-.cw{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:14px;}
-.ct-title{font-size:15px;color:var(--accent);font-family:var(--mono);margin-bottom:10px;font-weight:600;}
-canvas{display:block;width:100%;}
-.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:14px;}
-.sc{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:12px;}
-.sc .sl2{font-size:13px;color:var(--muted);margin-bottom:4px;}
-.sc .sv{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--mono);}
+.btn-p:hover,.btn-p:active{background:#3a8de8;}
+.btn-s{background:#1e2d4a;color:var(--text);font-size:13px;padding:8px 12px;width:100%;margin-top:6px;border:1px solid var(--border);}
+.sl{font-size:12px;font-family:var(--mono);color:var(--accent);letter-spacing:.08em;margin-bottom:5px;margin-top:6px;}
+.ref{background:#162035;border-left:4px solid var(--accent);padding:9px 12px;border-radius:0 4px 4px 0;font-size:13px;color:#c0d4f0;margin:8px 0;font-family:var(--mono);line-height:1.75;word-break:break-all;}
+.cw{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:12px;}
+.ct-title{font-size:14px;color:var(--accent);font-family:var(--mono);margin-bottom:10px;font-weight:600;}
+canvas{display:block;width:100%;max-width:100%;}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-bottom:12px;}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:5px;padding:10px;}
+.sc .sl2{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.sc .sv{font-size:20px;font-weight:700;color:var(--accent);font-family:var(--mono);}
 .sc.ok .sv{color:var(--green);}
 .sc.warn .sv{color:var(--yellow);}
-.ct-tbl{width:100%;border-collapse:collapse;font-size:15px;}
-.ct-tbl th{background:#1a2d50;padding:10px 12px;text-align:left;color:#c8dcff;border:1px solid var(--border);font-weight:700;}
-.ct-tbl td{padding:9px 12px;border:1px solid var(--border);color:var(--text);}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.ct-tbl{width:100%;border-collapse:collapse;font-size:14px;}
+.ct-tbl th{background:#1a2d50;padding:9px 10px;text-align:left;color:#c8dcff;border:1px solid var(--border);font-weight:700;}
+.ct-tbl td{padding:8px 10px;border:1px solid var(--border);color:var(--text);}
 .ct-tbl tr:hover td{background:#1f3260;}
-.rr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:15px;}
+.rr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;}
 .rr:last-child{border-bottom:none;}
 .rr .l{color:var(--muted);}
 .rr .v{font-family:var(--mono);font-weight:700;color:var(--green);}
+@media(max-width:767px){
+  body{font-size:15px;}
+  .hdr{padding:9px 12px;gap:9px;}
+  .hdr-icon{font-size:22px;}
+  .hdr h1{font-size:15px;}
+  .hdr p{display:none;}
+  .hdr-badge{font-size:11px;padding:3px 8px;}
+  .sidebar-toggle{display:block;}
+  .layout{display:block;height:auto;}
+  .sidebar{display:none;border-right:none;border-bottom:2px solid var(--border);padding:10px;max-height:72vh;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .sidebar.open{display:block;}
+  .main-area{width:100%;}
+  .ct{height:auto;min-height:40vh;padding:10px;}
+  .tab{padding:9px 11px;font-size:13px;}
+  .g3{grid-template-columns:1fr 1fr;}
+  .field input,.field select{padding:9px 8px;font-size:15px;}
+  .sg{grid-template-columns:1fr 1fr;gap:8px;}
+  .sc .sv{font-size:17px;}
+  .ct-tbl{min-width:460px;font-size:13px;}
+  .ct-tbl th,.ct-tbl td{padding:7px 8px;}
+  .ref{font-size:12px;padding:8px 10px;word-break:break-word;}
+  .btn{font-size:15px;padding:11px 16px;}
+  .ph{font-size:12px;padding:8px 10px;}
+  .pb{padding:10px;}
+  .panel{margin-bottom:8px;}
+}
+@media(max-width:380px){
+  .hdr h1{font-size:14px;}
+  .g2{grid-template-columns:1fr 1fr;}
+  .sg{grid-template-columns:1fr 1fr;}
+}
 user-select: none
 </style>
 </head>
 <body>
 <div class="hdr">
-  <div style="font-size:28px">🚛</div>
-  <div>
+  <div class="hdr-icon">🚛</div>
+  <div class="hdr-text">
     <h1>汽车动力性能计算 · 教师评阅工具</h1>
     <p>汽车动力性能仿真 — 《汽车理论》第6版（余志生）</p>
   </div>
@@ -80,8 +118,9 @@ user-select: none
   <div class="tab" onclick="sw(8)">📋 评阅汇总</div>
 </div>
 
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">⚙️ 展开/折叠 参数设置</button>
 <div class="layout">
-<aside class="sidebar">
+<aside class="sidebar" id="sidebarPanel">
   <div class="panel">
     <div class="ph"><span class="dot"></span>发动机 Tq-n 拟合</div>
     <div class="pb">
@@ -194,7 +233,7 @@ user-select: none
 <b>后轴附着率:</b> φ = Ft / N₂；N₂ = ma·g·[a/L·cosα + hg/L·(sinα – f·cosα)]
       </div>
       <div class="sl" style="margin-top:10px">▸ 检查要点</div>
-      <table class="ct-tbl">
+      <div class="tbl-wrap"><table class="ct-tbl">
         <tr><th>#</th><th>检查项目</th><th>易错点</th></tr>
         <tr><td>①</td><td>驱动力–阻力平衡图</td><td>各档曲线从n_min到n_max；阻力曲线是否包含空气阻力</td></tr>
         <tr><td>②</td><td>最高车速</td><td>应是最高档Ft=Fr交点，不是发动机最高转速对应车速</td></tr>
@@ -202,7 +241,7 @@ user-select: none
         <tr><td>④</td><td>附着率</td><td>后轴法向载荷要考虑坡道和惯性影响；检查是否&lt;路面φ</td></tr>
         <tr><td>⑤</td><td>1/j曲线</td><td>δ计算中ig和i₀的平方；各档曲线对应速度范围正确</td></tr>
         <tr><td>⑥</td><td>v-t曲线</td><td>梯形积分Δt=Δv/j；换挡判断（n_max时升档）；总时间</td></tr>
-      </table>
+      </table></div>
     </div></div>
   </div>
 <div class="ct" id="ct1">
@@ -239,8 +278,8 @@ user-select: none
 <div class="ct" id="ct8">
     <div class="panel"><div class="ph"><span class="dot"></span>📋 综合评阅参考表</div><div class="pb">
       <div class="ref" style="margin-bottom:12px">以下计算值可作为教师评阅标准。学生误差建议允许 ±5%，图形形状重点检查。</div>
-      <table class="ct-tbl"><thead><tr><th>计算项目</th><th>本工具参考值</th><th>说明/公式核查点</th></tr></thead>
-      <tbody id="sum_body"></tbody></table>
+      <div class="tbl-wrap"><table class="ct-tbl"><thead><tr><th>计算项目</th><th>本工具参考值</th><th>说明/公式核查点</th></tr></thead>
+      <tbody id="sum_body"></tbody></table></div>
     </div></div>
   </div>
 
@@ -258,6 +297,22 @@ let RES={};
 function sw(i){
   document.querySelectorAll('.ct').forEach((c,k)=>c.classList.toggle('active',k===i));
   document.querySelectorAll('.tab').forEach((t,k)=>t.classList.toggle('active',k===i));
+  // On mobile: auto-close sidebar when switching to a result tab
+  if(window.innerWidth<=767&&i>0){
+    const sb=document.getElementById('sidebarPanel');
+    const btn=document.getElementById('sidebarToggle');
+    if(sb){sb.classList.remove('open');}
+    if(btn){btn.classList.remove('open');}
+  }
+  // Scroll tab into view
+  document.querySelectorAll('.tab')[i]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+function toggleSidebar(){
+  const sb=document.getElementById('sidebarPanel');
+  const btn=document.getElementById('sidebarToggle');
+  if(!sb||!btn)return;
+  sb.classList.toggle('open');
+  btn.classList.toggle('open');
 }
 function updTq(){
   const m=document.getElementById('tq_mode').value;
@@ -664,6 +719,13 @@ function buildSum(){
 updGears(); updTq();
 setTimeout(calcAll,100);
 window.addEventListener('resize',()=>{if(RES.gd){draw1();draw2();draw3();draw4();draw5();draw6();draw8();}});
+// On mobile: show sidebar by default on first load if on param tab
+if(window.innerWidth<=767){
+  const sb=document.getElementById('sidebarPanel');
+  const btn=document.getElementById('sidebarToggle');
+  if(sb){sb.classList.add('open');}
+  if(btn){btn.classList.add('open');}
+}
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
 if (e.key === 'F12' || 
